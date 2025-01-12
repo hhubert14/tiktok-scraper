@@ -8,6 +8,7 @@ from selenium.webdriver.common.by import By
 import re
 
 from video_metadata import VideoMetadata
+from scraper import retry_count
 
 def scroll_to_bottom(driver: webdriver.Chrome) -> None:
     last_height = driver.execute_script("return document.body.scrollHeight")
@@ -59,7 +60,7 @@ def get_downloadable_url(video_url: str) -> str:
             video_data = response.json()
             return video_data["non_watermarked_url"]
         else:
-            for i in range(10):
+            for i in range(retry_count):
                 print(f"Retry #{i + 1}")
                 response = requests.get(api_url)
                 if response.status_code == 200:
@@ -101,6 +102,14 @@ def save_video(video_metadata: VideoMetadata) -> None:
             with open(video_path, 'wb') as f:
                 f.write(response.content)
         else:
+            for i in range(retry_count):
+                print(f"Retry #{i + 1}")
+                response = requests.get(video_metadata.downloadable_video_url)
+                if response.status_code == 200:
+                    video_path = os.path.join(folder_path, "video.mp4")
+                    with open(video_path, 'wb') as f:
+                        f.write(response.content)
+                    return
             print(f"Error downloading video: {response.status_code}")
     except Exception as e:
         print(f"Error saving files: {e}")
