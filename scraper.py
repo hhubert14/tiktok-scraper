@@ -233,7 +233,6 @@ search_query_formats = [
 conditions = {
     "min_view_count": 1000,
 }
-retry_count = 10 # In case GET requests fail
 
 def main():
     load_dotenv()

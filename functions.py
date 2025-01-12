@@ -8,7 +8,8 @@ from selenium.webdriver.common.by import By
 import re
 
 from video_metadata import VideoMetadata
-from scraper import retry_count
+
+retry_count = 10 # In case GET requests fail
 
 def scroll_to_bottom(driver: webdriver.Chrome) -> None:
     last_height = driver.execute_script("return document.body.scrollHeight")
