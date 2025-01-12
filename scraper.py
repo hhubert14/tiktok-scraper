@@ -273,7 +273,8 @@ def main():
             scroll_to_bottom(driver)
 
             videos_list = driver.find_element(By.XPATH, "//div[@data-e2e='search_top-item-list']")
-            videos = videos_list.find_elements(By.XPATH, "./div")
+            videos = videos_list.find_elements(By.XPATH, "./div[@class='css-1soki6-DivItemContainerForSearch e19c29qe9']")
+
             for video in videos:
                 video_url = video.find_element(By.XPATH, ".//a").get_attribute("href")
                 view_count = video.find_element(By.XPATH, ".//strong[@class='css-ws4x78-StrongVideoCount etrd4pu10']").text
