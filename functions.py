@@ -57,12 +57,10 @@ def get_downloadable_url(video_url: str) -> str:
         response = requests.get(api_url)
         if response.status_code == 200:
             video_data = response.json()
-            # non_watermarked_url = video_data["non_watermarked_url"]
-            # print(f"non_watermarked_url: {non_watermarked_url}")
             return video_data["non_watermarked_url"]
         else:
-            for _ in range(2):
-                print("Retrying...")
+            for i in range(5):
+                print(f"Retry #{i + 1}")
                 response = requests.get(api_url)
                 if response.status_code == 200:
                     video_data = response.json()

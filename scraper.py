@@ -16,8 +16,8 @@ search_queries = [
    "electrical engineer",
 ]
 search_query_formats = [
-    "{query}: day in the life",
     "{query}",
+    "{query}: day in the life",
     "{query} salary",
     "How to become a {query}?",
 ]
