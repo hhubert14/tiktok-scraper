@@ -6,6 +6,7 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import re
+from TikTokApi import TikTokApi
 
 from video_metadata import VideoMetadata
 
@@ -36,7 +37,7 @@ def check_conditions(view_count: Optional[str]="0", **kwargs) -> bool:
 def get_contact_info(creator_url: str, driver: webdriver.Chrome) -> List[str]:
     contact_info = []
     driver.get(creator_url)
-    user_stats_container = driver.find_element(By.XPATH, "//div[@class='css-1a6c9yg-CreatorPageHeaderTextContainer e1457k4r16']")
+    user_stats_container = driver.find_element(By.XPATH, "//div[contains(@class, 'CreatorPageHeaderTextContainer')]")
     user_bio = user_stats_container.find_element(By.XPATH, ".//h2[@data-e2e='user-bio']").text
     link = user_stats_container.find_elements(By.XPATH, "./div/a")
 
