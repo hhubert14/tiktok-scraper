@@ -35,24 +35,28 @@ def check_conditions(view_count: Optional[str]="0", **kwargs) -> bool:
     return False
 
 def get_contact_info(creator_url: str, driver: webdriver.Chrome) -> List[str]:
-    contact_info = []
-    driver.get(creator_url)
-    user_stats_container = driver.find_element(By.XPATH, "//div[contains(@class, 'CreatorPageHeaderTextContainer')]")
-    user_bio = user_stats_container.find_element(By.XPATH, ".//h2[@data-e2e='user-bio']").text
-    link = user_stats_container.find_elements(By.XPATH, "./div/a")
+    try:
+        contact_info = []
+        driver.get(creator_url)
+        user_stats_container = driver.find_element(By.XPATH, "//div[contains(@class, 'CreatorPageHeaderTextContainer')]")
+        user_bio = user_stats_container.find_element(By.XPATH, ".//h2[@data-e2e='user-bio']").text
+        link = user_stats_container.find_elements(By.XPATH, "./div/a")
 
-    if (link):
-        contact_info.append(link[0].get_attribute("href"))
-    
-    email_pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
-    phone_pattern = r'[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}'
+        if (link):
+            contact_info.append(link[0].get_attribute("href"))
+        
+        email_pattern = r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}'
+        phone_pattern = r'[\+]?[(]?[0-9]{3}[)]?[-\s\.]?[0-9]{3}[-\s\.]?[0-9]{4,6}'
 
-    if re.search(email_pattern, user_bio):
-        contact_info.append(re.findall(email_pattern, user_bio)[0])
-    if re.search(phone_pattern, user_bio):
-        contact_info.append(re.findall(phone_pattern, user_bio)[0])
+        if re.search(email_pattern, user_bio):
+            contact_info.append(re.findall(email_pattern, user_bio)[0])
+        if re.search(phone_pattern, user_bio):
+            contact_info.append(re.findall(phone_pattern, user_bio)[0])
 
-    return contact_info
+        return contact_info
+    except Exception as e:
+        print("Error getting contact info")
+        return []
 
 def get_downloadable_url(video_url: str) -> str:
     try:
