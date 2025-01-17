@@ -6,7 +6,7 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 import re
-from TikTokApi import TikTokApi
+import pyktok as pyk
 
 from video_metadata import VideoMetadata
 
@@ -75,6 +75,7 @@ def get_downloadable_url(video_url: str) -> str:
     
 def sanitize(name: str) -> str:
     sanitized = re.sub(r'[<>:"/\\|?*]', '', name)
+    sanitized = ''.join(c for c in sanitized if not (0x1F300 <= ord(c) <= 0x1F9FF or 0x2600 <= ord(c) <= 0x26FF or 0x2700 <= ord(c) <= 0x27BF))
     return sanitized[:100].strip()
     
 def save_video(video_metadata: VideoMetadata) -> None:
@@ -94,25 +95,35 @@ def save_video(video_metadata: VideoMetadata) -> None:
         with open(metadata_path, 'wb') as f:
             f.write(str(video_metadata).encode('utf-8'))
 
-        if not video_metadata.downloadable_video_url:
-            print(f"No downloadable video URL available for {video_metadata.video_url}")
-            return
+        # if not video_metadata.downloadable_video_url:
+        #     print(f"No downloadable video URL available for {video_metadata.video_url}")
+        #     return
 
-        response = requests.get(video_metadata.downloadable_video_url)
-        if response.status_code == 200:
-            video_path = os.path.join(folder_path, "video.mp4")
-            with open(video_path, 'wb') as f:
-                f.write(response.content)
+        # response = requests.get(video_metadata.downloadable_video_url)
+        # if response.status_code == 200:
+        #     video_path = os.path.join(folder_path, "video.mp4")
+        #     with open(video_path, 'wb') as f:
+        #         f.write(response.content)
+        # else:
+        #     for i in range(retry_count):
+        #         print(f"Retry #{i + 1}")
+        #         response = requests.get(video_metadata.downloadable_video_url)
+        #         if response.status_code == 200:
+        #             video_path = os.path.join(folder_path, "video.mp4")
+        #             with open(video_path, 'wb') as f:
+        #                 f.write(response.content)
+        #             return
+        #     print(f"Error downloading video: {response.status_code}")
+        pyk.save_tiktok(video_metadata.video_url,
+            True,
+        )
+        video_path = os.path.join(folder_path, "video.mp4")
+        mp4_files = [f for f in os.listdir('.') if f.endswith('.mp4')]
+        if not mp4_files:
+            print("No .mp4 files found in directory")
         else:
-            for i in range(retry_count):
-                print(f"Retry #{i + 1}")
-                response = requests.get(video_metadata.downloadable_video_url)
-                if response.status_code == 200:
-                    video_path = os.path.join(folder_path, "video.mp4")
-                    with open(video_path, 'wb') as f:
-                        f.write(response.content)
-                    return
-            print(f"Error downloading video: {response.status_code}")
+            video_name = mp4_files[0]
+            os.rename(video_name, video_path)
     except Exception as e:
         print(f"Error saving files: {e}")
     return
@@ -138,3 +149,27 @@ def add_to_spreadsheet(video_metadata_object: VideoMetadata) -> None:
             
     except Exception as e:
         print(f"Error adding to spreadsheet: {e}")
+
+# def upload_folder_to_dropbox(local_folder, dropbox_folder, access_token):
+#     dbx = dropbox.Dropbox(access_token)
+
+#     for root, dirs, files in os.walk(local_folder):
+#         for file_name in files:
+#             local_path = os.path.join(root, file_name)
+#             relative_path = os.path.relpath(local_path, local_folder)
+#             dropbox_path = os.path.join(dropbox_folder, relative_path)
+
+#             with open(local_path, "rb") as file:
+#                 dbx.files_upload
+#                 try:
+#                     dbx.files_upload(file.read(), dropbox_path, mode=dropbox.files.WriteMode("overwrite"))
+#                     print(f"Uploaded: {local_path} to {dropbox_path}")
+#                 except dropbox.exceptions.ApiError as e:
+#                     print(f"Failed to upload {local_path}: {e}")
+
+# # Example usage
+# access_token = "YOUR_ACCESS_TOKEN"
+# local_folder = "/path/to/your/local/folder"
+# dropbox_folder = "/destination/dropbox/folder"
+
+# upload_folder_to_dropbox(local_folder, dropbox_folder, access_token)

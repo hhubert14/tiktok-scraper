@@ -1,4 +1,3 @@
-import asyncio
 import os
 from typing import List
 from dotenv import load_dotenv
@@ -6,35 +5,30 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from functions import scroll_to_bottom, check_conditions, get_contact_info, get_downloadable_url, save_video, sanitize, add_to_spreadsheet
 from video_metadata import VideoMetadata
-from TikTokApi import TikTokApi
-import pyktok as pyk
-# pyk.specify_browser('edge') #browser specification may or may not be necessary depending on your local settings
-# from TikTokDownloader import download_tiktok_video
-
-
 
 # Adjustable Variables
 chrome_driver_path = "C:/Users/huang/Downloads/chromedriver-win64/chromedriver-win64/chromedriver.exe"
-save_videos_locally = False
+save_videos_locally = True
 save_videos_to_spreadsheet = True
 search_queries = [
-    # "Accountant",
-    # "Financial Analyst",
-    # "Financial Controller",
-    # "Business Analyst",
-    # "Investment Banker",
-    # "Private Equity",
-    # "Venture Capitalist",
-    # "Financial Planner",
-    # "Market Researcher",
-    # "General Manager",
-    # "Financial Trader",
-    # "Quantitative Trader",
-    # "Digital Marketer",
-    # "Content Marketing Specialist",
-    # "Marketing Assistant",
-    # "SEO Specialist",
-    # "Strategy Consultant",
+    "Computer Engineer",
+    "Accountant",
+    "Financial Analyst",
+    "Financial Controller",
+    "Business Analyst",
+    "Investment Banker",
+    "Private Equity",
+    "Venture Capitalist",
+    "Financial Planner",
+    "Market Researcher",
+    "General Manager",
+    "Financial Trader",
+    "Quantitative Trader",
+    "Digital Marketer",
+    "Content Marketing Specialist",
+    "Marketing Assistant",
+    "SEO Specialist",
+    "Strategy Consultant",
     "Management Consultant",
     "Technology Consultant",
     "Project Manager",
@@ -60,7 +54,6 @@ search_queries = [
     "Industrial Engineer",
     "Electrical Engineer",
     "Environmental Engineer",
-    "Computer Engineer",
     "Chemical Engineer",
     "Biomedical Engineer",
     "Materials Engineer",
@@ -286,11 +279,14 @@ def main():
                 video_url = video.find_element(By.XPATH, ".//a").get_attribute("href")
                 view_count = video.find_element(By.XPATH, ".//strong[contains(@class, 'StrongVideoCount')]").text
                 video_title = video.find_element(By.XPATH, ".//h1[contains(@class, 'H1Container')]").text
+                if "\\" in video_title or "\n" in video_title:
+                    continue
                 creator_url = "https://www.tiktok.com/@" + video.find_element(By.XPATH, ".//a[@data-e2e='search-card-user-link']").text
                 creator_contact_info = get_contact_info(creator_url, user_driver)
 
                 if check_conditions(view_count, **conditions):
-                    non_watermarked_url = get_downloadable_url(video_url)
+                    # non_watermarked_url = get_downloadable_url(video_url)
+                    non_watermarked_url = ""
                     video_metadata_object = VideoMetadata(search_query, video_url, video_title, creator_url, creator_contact_info, non_watermarked_url)
                     print(video_metadata_object)
                     if save_videos_locally:
@@ -303,31 +299,12 @@ def main():
     driver.quit()
     user_driver.quit()
 
-# async def test():
-#     await download()
-# script_dir = os.path.dirname(os.path.abspath(__file__))
-# save_path = os.path.join(script_dir, "video.mp4")
-
-# ms_token = os.environ.get("--Ml5RGVcW-Y7kpdOTIZIvKnhaNO54tfNuNPVZQ4vmgK9g==", None)
-
-# async def download():
-#     async with TikTokApi() as api:
-#         # await api.create_sessions(ms_tokens=[ms_token], num_sessions=1, sleep_after=3)
-
-#         await api.create_sessions(num_sessions=1)
-
-#         video = api.video(url="https://www.tiktok.com/@codeburcu/video/7403331277534874887")
-#         video_data = video.bytes()
-#         with open(save_path, "wb") as file:
-#             file.write(video_data)
-    
-#     print(f"Video saved to {save_path}")
+# load_dotenv()
+# DROPBOX_ACCESS_TOKEN = os.getenv('DROPBOX_ACCESS_TOKEN')
+# import dropbox
 
 if __name__ == "__main__":
-    # main()
-    
+    main()
+    # dbx = dropbox.Dropbox(DROPBOX_ACCESS_TOKEN)
+    # dbx.users_get_current_account()
 
-    # asyncio.run(download())
-    pyk.save_tiktok('https://www.tiktok.com/@_simplynay/video/7419101247564729643',
-        True,
-    )
