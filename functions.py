@@ -99,25 +99,6 @@ def save_video(video_metadata: VideoMetadata) -> None:
         with open(metadata_path, 'wb') as f:
             f.write(str(video_metadata).encode('utf-8'))
 
-        # if not video_metadata.downloadable_video_url:
-        #     print(f"No downloadable video URL available for {video_metadata.video_url}")
-        #     return
-
-        # response = requests.get(video_metadata.downloadable_video_url)
-        # if response.status_code == 200:
-        #     video_path = os.path.join(folder_path, "video.mp4")
-        #     with open(video_path, 'wb') as f:
-        #         f.write(response.content)
-        # else:
-        #     for i in range(retry_count):
-        #         print(f"Retry #{i + 1}")
-        #         response = requests.get(video_metadata.downloadable_video_url)
-        #         if response.status_code == 200:
-        #             video_path = os.path.join(folder_path, "video.mp4")
-        #             with open(video_path, 'wb') as f:
-        #                 f.write(response.content)
-        #             return
-        #     print(f"Error downloading video: {response.status_code}")
         pyk.save_tiktok(video_metadata.video_url,
             True,
         )
@@ -154,26 +135,34 @@ def add_to_spreadsheet(video_metadata_object: VideoMetadata) -> None:
     except Exception as e:
         print(f"Error adding to spreadsheet: {e}")
 
-# def upload_folder_to_dropbox(local_folder, dropbox_folder, access_token):
-#     dbx = dropbox.Dropbox(access_token)
+def process_search_results(driver: webdriver.Chrome,
+                           user_driver: webdriver.Chrome,
+                           search_query: str,
+                           search_url: str,
+                           creator_base_url: str,
+                           conditions: dict,
+                           save_videos_locally: bool = True,
+                           save_videos_to_spreadsheet: bool = True):
+    driver.get(search_url)
+    scroll_to_bottom(driver)
 
-#     for root, dirs, files in os.walk(local_folder):
-#         for file_name in files:
-#             local_path = os.path.join(root, file_name)
-#             relative_path = os.path.relpath(local_path, local_folder)
-#             dropbox_path = os.path.join(dropbox_folder, relative_path)
+    videos_list = driver.find_element(By.XPATH, "//div[@data-e2e='search_top-item-list']")
+    videos = videos_list.find_elements(By.XPATH, "./div[contains(@class, 'DivItemContainerForSearch')]")
 
-#             with open(local_path, "rb") as file:
-#                 dbx.files_upload
-#                 try:
-#                     dbx.files_upload(file.read(), dropbox_path, mode=dropbox.files.WriteMode("overwrite"))
-#                     print(f"Uploaded: {local_path} to {dropbox_path}")
-#                 except dropbox.exceptions.ApiError as e:
-#                     print(f"Failed to upload {local_path}: {e}")
+    for video in videos:
+        video_url = video.find_element(By.XPATH, ".//a").get_attribute("href")
+        view_count = video.find_element(By.XPATH, ".//strong[contains(@class, 'StrongVideoCount')]").text
+        video_title = video.find_element(By.XPATH, ".//h1[contains(@class, 'H1Container')]").text
+        if "\\" in video_title or "\n" in video_title:
+            continue
+        creator_url = creator_base_url + video.find_element(By.XPATH, ".//a[@data-e2e='search-card-user-link']").text
+        creator_contact_info = get_contact_info(creator_url, user_driver)
 
-# # Example usage
-# access_token = "YOUR_ACCESS_TOKEN"
-# local_folder = "/path/to/your/local/folder"
-# dropbox_folder = "/destination/dropbox/folder"
-
-# upload_folder_to_dropbox(local_folder, dropbox_folder, access_token)
+        if check_conditions(view_count, **conditions):
+            non_watermarked_url = ""
+            video_metadata_object = VideoMetadata(search_query, video_url, video_title, creator_url, creator_contact_info, non_watermarked_url)
+            print(video_metadata_object)
+            if save_videos_locally:
+                save_video(video_metadata_object)
+            if save_videos_to_spreadsheet:
+                add_to_spreadsheet(video_metadata_object)
