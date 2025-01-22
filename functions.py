@@ -166,3 +166,12 @@ def process_search_results(driver: webdriver.Chrome,
                 save_video(video_metadata_object)
             if save_videos_to_spreadsheet:
                 add_to_spreadsheet(video_metadata_object)
+
+def get_video_count(query: str) -> int:
+    folder_path = os.path.join("videos", query)
+    if not os.path.exists(folder_path):
+        return 0
+    return len(os.listdir(folder_path))
+
+def sort_by_fewest_videos(search_queries: List[str]) -> List[str]:
+    return sorted(search_queries, key=get_video_count)

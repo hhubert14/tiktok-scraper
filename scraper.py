@@ -3,7 +3,7 @@ from typing import List
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from functions import scroll_to_bottom, check_conditions, get_contact_info, save_video, sanitize, add_to_spreadsheet, process_search_results
+from functions import sanitize, process_search_results, sort_by_fewest_videos
 from chatgpt import get_keywords
 from video_metadata import VideoMetadata
 
@@ -14,38 +14,38 @@ save_videos_to_spreadsheet = True
 search_keywords_with_gpt = True
 gpt_model = "gpt-4o-mini"
 search_queries = [
-    # 'Neuropsychologist',
-    # 'Military Personnel',
-    # 'Principal',
-    # 'Strategy Consultant',
-    # 'Family Lawyer',
-    # 'Cybersecurity',
-    # 'Mechanic',
-    # 'General Manager',
-    # 'Dentist',
-    # 'Content Marketing Specialist',
-    # 'Content Creator',
-    # 'Firefighter',
-    # 'Screenwriter',
-    # 'Developmental Psychologist',
-    # 'Astronomer',
-    # 'Entrepreneur',
-    # 'VFX Artist',
-    # 'Urologist',
-    # 'Health Psychologist',
-    # 'Database Administrator',
-    # 'Geologist',
-    # 'Game Developer',
-    # 'Education Administrator',
-    # 'Project Manager',
-    # 'Farmer',
-    # 'DevOps Engineer',
-    # 'Network Engineer',
-    # 'Artist',
-    # 'Civil Litigation Lawyer',
-    # 'Engineer (general)',
-    # 'Politician',
-    # 'Data Scientist',
+    'Neuropsychologist',
+    'Military Personnel',
+    'Principal',
+    'Strategy Consultant',
+    'Family Lawyer',
+    'Cybersecurity',
+    'Mechanic',
+    'General Manager',
+    'Dentist',
+    'Content Marketing Specialist',
+    'Content Creator',
+    'Firefighter',
+    'Screenwriter',
+    'Developmental Psychologist',
+    'Astronomer',
+    'Entrepreneur',
+    'VFX Artist',
+    'Urologist',
+    'Health Psychologist',
+    'Database Administrator',
+    'Geologist',
+    'Game Developer',
+    'Education Administrator',
+    'Project Manager',
+    'Farmer',
+    'DevOps Engineer',
+    'Network Engineer',
+    'Artist',
+    'Civil Litigation Lawyer',
+    'Engineer (general)',
+    'Politician',
+    'Data Scientist',
     'Analytical Chemist',
     'Medical Physicist',
     'Publisher',
@@ -295,7 +295,11 @@ def main():
     # input("")
     base_url = "https://www.tiktok.com/search?q="
 
-    for search_query in search_queries:
+    sorted_queries = sort_by_fewest_videos(search_queries)
+
+    print(sorted_queries)
+
+    for search_query in sorted_queries:
         search_query = sanitize(search_query)
         job_title_folder_path = os.path.join("videos", search_query)
         if not os.path.exists(job_title_folder_path):

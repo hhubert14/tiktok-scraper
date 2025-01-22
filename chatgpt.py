@@ -12,7 +12,7 @@ def get_keywords(career: str, model: str) -> str:
                 "content": f"""Get domain-specific keywords associated with {career} and return the result in a comma delimited string.
                 
                 For example, you would return the domain-specific keywords associated with software engineer as follows:
-                Big O Notation,Agile Methodology,RESTful APIs,Design Patterns,Data Structures,Object-Oriented Programming,Continuous Integration/Continuous Deployment,Version Control Systems,Test-Driven Development,Microservices,Containerization"""
+                Python,Java,Javascript,Big O Notation,Agile Methodology,RESTful APIs,Design Patterns,Data Structures,Object-Oriented Programming,Continuous Integration/Continuous Deployment,Version Control Systems,Test-Driven Development,Microservices,Containerization"""
             }
         ]
     )
