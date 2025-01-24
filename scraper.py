@@ -3,7 +3,7 @@ from typing import List
 from dotenv import load_dotenv
 from selenium import webdriver
 from selenium.webdriver.common.by import By
-from functions import sanitize, process_search_results, sort_by_fewest_videos
+from functions import sanitize, process_search_results, sort_by_fewest_videos, print_queries_with_no_videos
 from chatgpt import get_keywords
 from video_metadata import VideoMetadata
 
@@ -261,6 +261,7 @@ search_queries = [
 search_query_formats = [
     "{query}",
     "{query}: day in the life",
+    "What is a {query}?",
     "{query} salary",
     "How to become a {query}?",
 ]
@@ -292,7 +293,6 @@ def main():
     user_driver.add_cookie(cookie)
     user_driver.refresh()
 
-    # input("")
     base_url = "https://www.tiktok.com/search?q="
 
     sorted_queries = sort_by_fewest_videos(search_queries)
@@ -318,33 +318,6 @@ def main():
                                    True,
                                    True,
                                    )
-            # driver.get(base_url + modified_search_query)
-
-            # scroll_to_bottom(driver)
-
-            # videos_list = driver.find_element(By.XPATH, "//div[@data-e2e='search_top-item-list']")
-            # videos = videos_list.find_elements(By.XPATH, "./div[contains(@class, 'DivItemContainerForSearch')]")
-            # # videos = videos[:20]
-
-            # for video in videos:
-            #     video_url = video.find_element(By.XPATH, ".//a").get_attribute("href")
-            #     view_count = video.find_element(By.XPATH, ".//strong[contains(@class, 'StrongVideoCount')]").text
-            #     video_title = video.find_element(By.XPATH, ".//h1[contains(@class, 'H1Container')]").text
-            #     if "\\" in video_title or "\n" in video_title:
-            #         continue
-            #     creator_url = "https://www.tiktok.com/@" + video.find_element(By.XPATH, ".//a[@data-e2e='search-card-user-link']").text
-            #     creator_contact_info = get_contact_info(creator_url, user_driver)
-
-            #     if check_conditions(view_count, **conditions):
-            #         # non_watermarked_url = get_downloadable_url(video_url)
-            #         non_watermarked_url = ""
-            #         video_metadata_object = VideoMetadata(search_query, video_url, video_title, creator_url, creator_contact_info, non_watermarked_url)
-            #         print(video_metadata_object)
-            #         if save_videos_locally:
-            #             save_video(video_metadata_object)
-                    
-            #         if save_videos_to_spreadsheet:
-            #             add_to_spreadsheet(video_metadata_object)
 
         if search_keywords_with_gpt:
             keywords = get_keywords(search_query, gpt_model).split(",")
@@ -367,9 +340,6 @@ def main():
     driver.quit()
     user_driver.quit()
 
-# load_dotenv()
-# DROPBOX_ACCESS_TOKEN = os.getenv('DROPBOX_ACCESS_TOKEN')
-# import dropbox
-
 if __name__ == "__main__":
     main()
+    # print_queries_with_no_videos(search_queries)

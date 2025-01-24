@@ -175,3 +175,15 @@ def get_video_count(query: str) -> int:
 
 def sort_by_fewest_videos(search_queries: List[str]) -> List[str]:
     return sorted(search_queries, key=get_video_count)
+
+def print_queries_with_no_videos(search_queries: List[str]) -> None:
+    ret = []
+    for query in search_queries:
+        folder_path = os.path.join("videos", query)
+        if not os.path.exists(folder_path):
+            ret.append(query)
+    
+    print("search_queries = [")
+    for query in ret:
+        print(f"{query},")
+    print("]")
